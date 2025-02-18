@@ -29,7 +29,6 @@ public class MovementServiceImpl implements MovementService {
     @Override
     @Transactional
     public MovementDTO createMovement(MovementDTO movementDTO) {
-        System.out.println("ppaapapapapappa");
         Account account = validateAndGetAccount(movementDTO.getAccountId());
         BigDecimal newBalance = calculateNewBalance(account.getInitialBalance(), movementDTO);
         validateBalance(newBalance);

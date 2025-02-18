@@ -1,4 +1,4 @@
-# Usa una imagen base de Java
+# Usa una imagen base de Java 17
 FROM eclipse-temurin:17-jdk
 
 # Establecer el directorio de trabajo dentro del contenedor

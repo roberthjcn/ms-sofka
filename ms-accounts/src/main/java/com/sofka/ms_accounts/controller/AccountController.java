@@ -17,7 +17,7 @@ public class AccountController {
     private final AccountService accountService;
 
     @PostMapping
-    public ResponseEntity<AccountDTO> createAccount(@Valid @RequestBody AccountDTO accountDTO) {
+    public ResponseEntity<AccountDTO> createAccount(@RequestBody AccountDTO accountDTO) {
         return ResponseEntity.ok(accountService.createAccount(accountDTO));
     }
 

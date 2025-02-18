@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
+    private final CustomerValidationPublisher validationPublisher;
 
     @Override
     public List<AccountDTO> getAccountsPerCustomer(UUID customerId) {
@@ -40,6 +41,8 @@ public class AccountServiceImpl implements AccountService {
         if (accountRepository.existsByAccountNumber(accountDTO.getAccountNumber())) {
             throw new DuplicateAccountException("Ya existe una cuenta con el número: " + accountDTO.getAccountNumber());
         }
+
+        validationPublisher.validateCustomer(accountDTO.getCustomerId());
 
         Account account = AccountMapper.toEntity(accountDTO);
         account = accountRepository.save(account);
