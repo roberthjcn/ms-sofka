@@ -1,5 +1,6 @@
 package com.sofka.ms_accounts.entity;
 
+import com.sofka.ms_accounts.enums.AccountType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,8 +24,10 @@ public class Account {
     @Column(unique = true)
     private String accountNumber;
 
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private AccountType type;
     private BigDecimal initialBalance;
+    private BigDecimal currentBalance;
     private Boolean status;
 
     private UUID customerId;

@@ -45,9 +45,43 @@ public class AccountServiceImpl implements AccountService {
         validationPublisher.validateCustomer(accountDTO.getCustomerId());
 
         Account account = AccountMapper.toEntity(accountDTO);
+        account.setCurrentBalance(accountDTO.getInitialBalance());
         account = accountRepository.save(account);
 
         return AccountMapper.toDTO(account);
+
+    }
+
+    @Override
+    @Transactional
+    public AccountDTO updateAccount(AccountDTO accountDTO) {
+        Account existingAccount = accountRepository.findById(accountDTO.getAccountId())
+                .orElseThrow(() -> new AccountNotFoundException("Cuenta no encontrada con ID: " + accountDTO.getAccountId()));
+
+        if (accountDTO.getAccountNumber() != null &&
+                !accountDTO.getAccountNumber().equals(existingAccount.getAccountNumber())) {
+            if (accountRepository.existsByAccountNumber(accountDTO.getAccountNumber())) {
+                throw new DuplicateAccountException("Ya existe una cuenta con el número: " + accountDTO.getAccountNumber());
+            }
+            existingAccount.setAccountNumber(accountDTO.getAccountNumber());
+        }
+
+        if (accountDTO.getType() != null) {
+            existingAccount.setType(accountDTO.getType());
+        }
+        if (accountDTO.getInitialBalance() != null) {
+            existingAccount.setInitialBalance(accountDTO.getInitialBalance());
+        }
+        if (accountDTO.getStatus() != null) {
+            existingAccount.setStatus(accountDTO.getStatus());
+        }
+        if (accountDTO.getCustomerId() != null) {
+            existingAccount.setCustomerId(accountDTO.getCustomerId());
+        }
+
+        Account updatedAccount = accountRepository.save(existingAccount);
+
+        return AccountMapper.toDTO(updatedAccount);
     }
 
     @Override

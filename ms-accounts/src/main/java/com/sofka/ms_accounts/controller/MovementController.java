@@ -1,5 +1,6 @@
 package com.sofka.ms_accounts.controller;
 
+
 import com.sofka.ms_accounts.dto.MovementDTO;
 import com.sofka.ms_accounts.service.MovementService;
 import com.sofka.ms_accounts.utils.ApiResponse;
@@ -22,6 +23,13 @@ public class MovementController {
         return ResponseEntity.ok(new ApiResponse<>("Movimiento registrado con éxito", movementService.createMovement(movementDTO)));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<MovementDTO> updateMovement(@PathVariable UUID id, @RequestBody MovementDTO movementDTO) {
+        movementDTO.setMovementId(id);
+        MovementDTO updateAccount =movementService.updateMovement(movementDTO);
+        return ResponseEntity.ok(updateAccount);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<MovementDTO>> getMovementById(@PathVariable UUID id) {
         return ResponseEntity.ok(new ApiResponse<>("Movimiento obtenido", movementService.getMovementById(id)));
@@ -34,7 +42,12 @@ public class MovementController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<MovementDTO>>> getAllMovements() {
-        System.out.println("isdsdsjdjskds");
         return ResponseEntity.ok(new ApiResponse<>("Todos los movimientos obtenidos", movementService.getAllMovements()));
+    }
+
+    @DeleteMapping("/{movementId}")
+    public ResponseEntity<ApiResponse<Void>> deleteMovement(@PathVariable UUID movementId) {
+        movementService.deleteMovement(movementId);
+        return ResponseEntity.ok(new ApiResponse<>("Movimiento eliminado con éxito", null));
     }
 }

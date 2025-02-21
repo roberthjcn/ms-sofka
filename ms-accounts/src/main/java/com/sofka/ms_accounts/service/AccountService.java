@@ -7,6 +7,7 @@ import java.util.UUID;
 
 public interface AccountService {
     AccountDTO createAccount(AccountDTO cuentaDTO);
+    AccountDTO updateAccount(AccountDTO accountDTO);
     List<AccountDTO> getAccountsPerCustomer(UUID customerId);
     AccountDTO getAccountById(UUID id);
     List<AccountDTO> getAllAccounts();

@@ -2,7 +2,7 @@ package com.sofka.ms_accounts.controller;
 
 import com.sofka.ms_accounts.dto.AccountDTO;
 import com.sofka.ms_accounts.service.AccountService;
-import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +19,13 @@ public class AccountController {
     @PostMapping
     public ResponseEntity<AccountDTO> createAccount(@RequestBody AccountDTO accountDTO) {
         return ResponseEntity.ok(accountService.createAccount(accountDTO));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<AccountDTO> updateAccount(@PathVariable UUID id, @RequestBody AccountDTO accountDTO) {
+        accountDTO.setAccountId(id);
+        AccountDTO updateAccount =accountService.updateAccount(accountDTO);
+        return ResponseEntity.ok(updateAccount);
     }
 
     @GetMapping("/{id}")

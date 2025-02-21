@@ -30,7 +30,7 @@ public class MovementServiceImpl implements MovementService {
     @Transactional
     public MovementDTO createMovement(MovementDTO movementDTO) {
         Account account = validateAndGetAccount(movementDTO.getAccountId());
-        BigDecimal newBalance = calculateNewBalance(account.getInitialBalance(), movementDTO);
+        BigDecimal newBalance = calculateNewBalance(account.getCurrentBalance(), movementDTO);
         validateBalance(newBalance);
 
         Movement movement = createAndSaveMovement(movementDTO, account, newBalance);
@@ -38,6 +38,35 @@ public class MovementServiceImpl implements MovementService {
         updateAccountBalance(account, newBalance);
 
         return MovementMapper.toDTO(movement);
+    }
+
+    @Override
+    @Transactional
+    public MovementDTO updateMovement(MovementDTO movementDTO) {
+        Movement existingMovement = movementRepository.findById(movementDTO.getMovementId())
+                .orElseThrow(() -> new MovementNotFoundException("Movimiento no encontrado con ID: " + movementDTO.getMovementId()));
+        Account account = validateAndGetAccount(existingMovement.getAccount().getAccountId());
+
+        if (movementDTO.getType() != null) {
+            existingMovement.setType(movementDTO.getType().getValue());
+        }
+        if (movementDTO.getValue() != null) {
+            existingMovement.setValue(movementDTO.getValue());
+        }
+        if (movementDTO.getDate() != null) {
+            existingMovement.setDate(movementDTO.getDate());
+        }
+
+        if (movementDTO.getValue() != null && !movementDTO.getValue().equals(existingMovement.getValue())) {
+            BigDecimal newBalance = calculateNewBalance(account.getCurrentBalance(), movementDTO);
+            validateBalance(newBalance);
+            existingMovement.setBalance(newBalance);
+            updateAccountBalance(account, newBalance);
+        }
+
+        Movement updatedMovement = movementRepository.save(existingMovement);
+
+        return MovementMapper.toDTO(updatedMovement);
     }
 
     @Override
@@ -62,6 +91,24 @@ public class MovementServiceImpl implements MovementService {
                 .map(MovementMapper::toDTO)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    @Transactional
+    public void deleteMovement(UUID movementId) {
+        Movement movement = movementRepository.findById(movementId)
+                .orElseThrow(() -> new MovementNotFoundException("Movimiento no encontrado con ID: " + movementId));
+
+        Account account = movement.getAccount();
+
+        BigDecimal newBalance = revertBalance(account.getCurrentBalance(), movement);
+        validateBalance(newBalance);
+
+        account.setCurrentBalance(newBalance);
+        accountRepository.save(account);
+
+        movementRepository.delete(movement);
+    }
+
 
     private Account validateAndGetAccount(UUID accountId) {
         return accountRepository.findById(accountId)
@@ -99,7 +146,20 @@ public class MovementServiceImpl implements MovementService {
     }
 
     private void updateAccountBalance(Account account, BigDecimal newBalance) {
-        account.setInitialBalance(newBalance);
+        account.setCurrentBalance(newBalance);
         accountRepository.save(account);
+    }
+
+    private BigDecimal revertBalance(BigDecimal currentBalance, Movement movement) {
+        MovementType movementType = MovementType.fromValue(movement.getType());
+
+        switch (movementType) {
+            case DEPOSITO:
+                return currentBalance.subtract(movement.getValue());
+            case RETIRO:
+                return currentBalance.add(movement.getValue());
+            default:
+                throw new IllegalArgumentException("Tipo de movimiento no válido: " + movementType);
+        }
     }
 }

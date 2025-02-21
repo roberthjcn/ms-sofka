@@ -23,7 +23,7 @@ public class CustomerValidationListener {
     @RabbitListener(queues = "customer.validation.request")
     public void validateCustomer(String customerId) {
         UUID uuid = UUID.fromString(customerId);
-        Optional<Customer> exists = customerRepository.findCustomerById(uuid);
+        Optional<Customer> exists = customerRepository.findById(uuid);
         rabbitTemplate.convertAndSend("customer.validation.response", customerId + ":" + exists.isEmpty());
     }
 }

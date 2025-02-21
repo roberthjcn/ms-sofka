@@ -9,6 +9,7 @@ public class AccountMapper {
                 .accountNumber(account.getAccountNumber())
                 .type(account.getType())
                 .initialBalance(account.getInitialBalance())
+                .currentBalance(account.getCurrentBalance())
                 .status(account.getStatus())
                 .customerId(account.getCustomerId())
                 .build();
@@ -20,6 +21,7 @@ public class AccountMapper {
                 .accountNumber(accountDTO.getAccountNumber())
                 .type(accountDTO.getType())
                 .initialBalance(accountDTO.getInitialBalance())
+                .currentBalance(accountDTO.getCurrentBalance())
                 .status(accountDTO.getStatus())
                 .customerId(accountDTO.getCustomerId())
                 .build();
